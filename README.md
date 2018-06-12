@@ -1,6 +1,8 @@
 Ansible Role: YUM cron
 ======================
 
+[![Build Status](https://travis-ci.org/diadzine/ansible-role-yum-cron.svg?branch=master)](https://travis-ci.org/diadzine/ansible-role-yum-cron)
+
 An Ansible role for yum-cron and auto updates confg.
 
 Requirements
