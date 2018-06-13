@@ -1,13 +1,15 @@
 services: docker
 
 env:
-  - distro: centos7
+  - distribution: centos
+    version: 7
     init: /usr/lib/systemd/systemd
     run_opts: "--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
 
 before_install:
   # Pull container.
-  - 'docker pull ansible/${distro}-ansible:latest'
+  - 'docker pull ${distribution}:${version}'
+  - 'sudo docker build --no-cache --rm --file=travis/Dockerfile.${distribution}-${version} --tag=${distribution}-${version}:ansible travis'
 
 script:
   - container_id=$(date +%s)
@@ -18,16 +20,16 @@ script:
 
   # Ansible syntax check.
   - echo "Checking role syntax"
-  - docker exec --tty $container_id ansible-playbook -i /etc/ansible/roles/role_under_test/tests/inventory /etc/ansible/roles/role_under_test/tests/travis.yml --syntax-check
+  - docker exec --tty $container_id env ANSIBLE_FORCE_COLOR=1 ansible-playbook -i /etc/ansible/roles/role_under_test/tests/inventory /etc/ansible/roles/role_under_test/tests/travis.yml --syntax-check
 
   # Test role.
   - echo "Running the role"
-  - docker exec --tty $container_id ansible-playbook -i /etc/ansible/roles/role_under_test/tests/inventory /etc/ansible/roles/role_under_test/tests/travis.yml
+  - docker exec --tty $container_id env ANSIBLE_FORCE_COLOR=1 ansible-playbook -i /etc/ansible/roles/role_under_test/tests/inventory /etc/ansible/roles/role_under_test/tests/travis.yml
 
   # Test role idempotence.
   - echo "Testing role idempotence"
   - idempotence_log=$(mktemp)
-  - docker exec --tty $container_id ansible-playbook -i /etc/ansible/roles/role_under_test/tests/inventory /etc/ansible/roles/role_under_test/tests/travis.yml | tee -a $idempotence_log
+  - docker exec --tty $container_id env ANSIBLE_FORCE_COLOR=1 ansible-playbook -i /etc/ansible/roles/role_under_test/tests/inventory /etc/ansible/roles/role_under_test/tests/travis.yml | tee -a $idempotence_log
   - >
     tail $idempotence_log
     | grep -q 'changed=0.*failed=0'
