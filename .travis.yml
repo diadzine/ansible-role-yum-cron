@@ -1,4 +1,8 @@
-services: docker
+---
+sudo: required
+
+services:
+  - docker
 
 env:
   - distribution: centos
