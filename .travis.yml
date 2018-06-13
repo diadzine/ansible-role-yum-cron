@@ -20,7 +20,7 @@ script:
 
   # Run container in detached state.
   - echo "Running container"
-  - docker run --detach --volume="$PWD":/etc/ansible/roles/role_under_test:ro --name $container_id $run_opts ansible/${distro}-ansible:latest $init
+  - docker run --detach --volume="$PWD":/etc/ansible/roles/role_under_test:ro --name $container_id $run_opts ${distribution}-${version}:ansible $init
 
   # Ansible syntax check.
   - echo "Checking role syntax"
